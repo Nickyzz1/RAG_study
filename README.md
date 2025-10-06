@@ -1,16 +1,18 @@
 # RAG_study
 Repo pra podermos estudar um pouco sobre a lib RAG
 
-#Bibliotecas Utilizadas
+## Bibliotecas Utilizadas
 
 1. LightRAG (https://github.com/HKUDS/LightRAG)
 2. MinerU (https://github.com/opendatalab/MinerU)
    1. Transforma dados de PDF em formato legível para máquina
 
-## Arquivos Suportados
+## Conteúdos Suportados
 
-1. Documentos Office
-2. Imagens
+- PDFs - Artigos de pesquisa, relatórios, apresentações
+- Documentos Office - DOC, DOCX, PPT, PPTX, XLS, XLSX
+- Imagens - JPG, PNG, BMP, TIFF, GIF, WebP
+- Arquivos de texto - TXT, MD
 
 ## Formato da content_list
 
@@ -21,7 +23,6 @@ A content_list deve seguir o formato padrão, com cada item sendo um dicionário
 - Table content: {"type": "table", "table_body": "markdown table", "table_caption": ["caption"], "table_footnote": ["note"], "page_idx": 2}
 - Equation content: {"type": "equation", "latex": "LaTeX formula", "text": "description", "page_idx": 3}
 - Generic content: {"type": "custom_type", "content": "any content", "page_idx": 4}
- 
-###  
+
 
 
