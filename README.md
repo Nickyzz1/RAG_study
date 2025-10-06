@@ -32,6 +32,7 @@ Observações:
 - "Mineru" é uma ferramenta de código aberto para converter PDFs em formatos legíveis por máquina, como Markdown e JSON
 
 # Context Extraction Configuration
+ ```bash
    context_window: int = 1                       # Context window size (pages/chunks)
    context_mode: str = "page"                 # Context mode ("page" or "chunk")
    max_context_tokens: int = 2000             # Maximum context tokens
@@ -39,15 +40,18 @@ Observações:
    include_captions: bool = True              # Include image/table captions
    context_filter_content_types: List[str] = ["text"]  # Content types to include
    content_format: str = "minerU"             # Default content format for context extraction
-
+   ```
 # Context extraction settings
-   CONTEXT_WINDOW=2                                             # janela de contexto, pega uma página/chunk antes e um depois
-   CONTEXT_MODE=page                                            # dividindo em paginas, não chunks
-   MAX_CONTEXT_TOKENS=3000                                # o máximo de partições/chunks que um pag pode ter
-   INCLUDE_HEADERS=true                                         
-   INCLUDE_CAPTIONS=true
-   CONTEXT_FILTER_CONTENT_TYPES=text,image      # inclui análise de textos/imagens para definir o contexto
-   CONTENT_FORMAT=minerU                                   # formato padrão do conteudo extraido
+      ```bash
+      CONTEXT_WINDOW=2                 # janela de contexto, pega uma página/chunk antes e um depois
+      CONTEXT_MODE=page                # dividindo em paginas, não chunks
+      MAX_CONTEXT_TOKENS=3000          # o máximo de partições/chunks que um pag pode ter
+      INCLUDE_HEADERS=true
+      INCLUDE_CAPTIONS=true
+      CONTEXT_FILTER_CONTENT_TYPES=text,image   # inclui análise de textos/imagens para definir o contexto
+      CONTENT_FORMAT=minerU            # formato padrão do conteudo extraido
+
+      ```
 
 - possui uma pasta com exemplos de códigos
 
