@@ -10,7 +10,7 @@ Repo pra podermos estudar um pouco sobre a lib RAG
 ## Conteúdos Suportados
 
 - PDFs - Artigos de pesquisa, relatórios, apresentações
-- Documentos Office - DOC, DOCX, PPT, PPTX, XLS, XLSX
+- Documentos LibreOffice - DOC, DOCX, PPT, PPTX, XLS, XLSX
 - Imagens - JPG, PNG, BMP, TIFF, GIF, WebP
 - Arquivos de texto - TXT, MD
 
@@ -67,12 +67,13 @@ Observações:
 - Imagens - JPG, PNG, BMP, TIFF, GIF, WebP
 - Arquivos de texto - TXT, MD
 
-# Mineru:
+# MinerU:
 - Reconhece e converte automaticamente fórmulas no documento para o formato LaTeX.
 - Reconhece e converte automaticamente tabelas no documento para o formato HTML.
 - Detecta automaticamente PDFs digitalizados e PDFs ilegíveis e ativa a funcionalidade OCR.
 - O OCR suporta detecção e reconhecimento de 84 idiomas.
 - Suporta vários formatos de saída, como Markdown multimodal e NLP, JSON classificado por ordem de leitura e formatos intermediários avançados.
+- (Primeiro teste usando diretamente o MinerU demorou mais de 2 horas)
 
 
 
