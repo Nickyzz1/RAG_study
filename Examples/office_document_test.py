@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 """
-Text Format Parsing Test Script for RAG-Anything
+Office Document Parsing Test Script for RAG-Anything
 
-This script demonstrates how to parse various text formats
-using MinerU, including TXT and MD files.
+This script demonstrates how to parse various Office document formats
+using MinerU, including DOC, DOCX, PPT, PPTX, XLS, and XLSX files.
 
 Requirements:
-- ReportLab library for PDF conversion
+- LibreOffice installed on the system
 - RAG-Anything package
 
 Usage:
-    python text_format_test.py --file path/to/text/document.md
+    python office_document_test.py --file path/to/office/document.docx
 """
 import time
 import argparse
@@ -20,33 +20,44 @@ from pathlib import Path
 from raganything import RAGAnything, RAGAnythingConfig
 
 
-def check_reportlab_installation():
-    """Check if ReportLab is installed and available"""
-    try:
-        import reportlab
+def check_libreoffice_installation():
+    """Check if LibreOffice is installed and available"""
+    import subprocess
 
-        print(
-            f"✅ ReportLab found: version {reportlab.Version if hasattr(reportlab, 'Version') else 'Unknown'}"
-        )
-        return True
-    except ImportError:
-        print("❌ ReportLab not found. Please install ReportLab:")
-        print("  pip install reportlab")
-        return False
+    for cmd in ["libreoffice", "soffice"]:
+        try:
+            result = subprocess.run(
+                [cmd, "--version"], capture_output=True, check=True, timeout=10
+            )
+            print(f"✅ LibreOffice found: {result.stdout.decode().strip()}")
+            return True
+        except (
+            subprocess.CalledProcessError,
+            FileNotFoundError,
+            subprocess.TimeoutExpired,
+        ):
+            continue
+
+    print("❌ LibreOffice not found. Please install LibreOffice:")
+    print("  - Windows: Download from https://www.libreoffice.org/download/download/")
+    print("  - macOS: brew install --cask libreoffice")
+    print("  - Ubuntu/Debian: sudo apt-get install libreoffice")
+    print("  - CentOS/RHEL: sudo yum install libreoffice")
+    return False
 
 
-async def test_text_format_parsing(file_path: str):
-    """Test text format parsing with MinerU"""
+async def test_office_document_parsing(file_path: str):
+    """Test Office document parsing with MinerU"""
+
+    print(f"🧪 Testing Office document parsing: {file_path}")
     start_time = time.perf_counter()
-    print(f"🧪 Testing text format parsing: {file_path}")
-    print(f"Time: {start_time}")
-    # Check if file exists and is a supported text format
+    # Check if file exists and is a supported Office format
     file_path = Path(file_path)
     if not file_path.exists():
         print(f"❌ File does not exist: {file_path}")
         return False
 
-    supported_extensions = {".txt", ".md",".pdf"}
+    supported_extensions = {".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx",".csv"}
     if file_path.suffix.lower() not in supported_extensions:
         print(f"❌ Unsupported file format: {file_path.suffix}")
         print(f"   Supported formats: {', '.join(supported_extensions)}")
@@ -55,18 +66,8 @@ async def test_text_format_parsing(file_path: str):
     print(f"📄 File format: {file_path.suffix.upper()}")
     print(f"📏 File size: {file_path.stat().st_size / 1024:.1f} KB")
 
-    # Display text file info
-    try:
-        with open(file_path, "r", encoding="utf-8") as f:
-            content = f.read()
-        print(f"📝 Text length: {len(content)} characters")
-        print(f"📋 Line count: {len(content.splitlines())}")
-    except UnicodeDecodeError:
-        print(
-            "⚠️  Text encoding: Non-UTF-8 (will try multiple encodings during processing)"
-        )
-
     # Initialize RAGAnything (only for parsing functionality)
+
     config = RAGAnythingConfig(
         context_window=1,
         context_mode="chunk",
@@ -76,8 +77,8 @@ async def test_text_format_parsing(file_path: str):
     rag = RAGAnything()
 
     try:
-        # Test text parsing with MinerU
-        print("\n🔄 Testing text parsing with MinerU...")
+        # Test document parsing with MinerU
+        print("\n🔄 Testing document parsing with MinerU...")
         content_list, md_content = await rag.parse_document(
             file_path=str(file_path),
             output_dir="./test_output",
@@ -101,22 +102,20 @@ async def test_text_format_parsing(file_path: str):
             for content_type, count in sorted(content_types.items()):
                 print(f"      • {content_type}: {count}")
 
-        # Display extracted text (if any)
+        # Display some parsed content preview
         if md_content.strip():
-            print("\n📄 Extracted text preview (first 500 characters):")
+            print("\n📄 Parsed content preview (first 500 characters):")
             preview = md_content.strip()[:500]
             print(f"   {preview}{'...' if len(md_content) > 500 else ''}")
-        else:
-            print("\n📄 No text extracted from the document")
 
-        # Display text blocks
+        # Display some structured content examples
         text_items = [
             item
             for item in content_list
             if isinstance(item, dict) and item.get("type") == "text"
         ]
         if text_items:
-            print("\n📝 Text blocks found:")
+            print("\n📝 Sample text blocks:")
             for i, item in enumerate(text_items[:3], 1):
                 text_content = item.get("text", "")
                 if text_content.strip():
@@ -125,20 +124,7 @@ async def test_text_format_parsing(file_path: str):
                         f"   {i}. {preview}{'...' if len(text_content) > 200 else ''}"
                     )
 
-        # Check for any tables detected in the text
-        table_items = [
-            item
-            for item in content_list
-            if isinstance(item, dict) and item.get("type") == "table"
-        ]
-        if table_items:
-            print(f"\n📊 Found {len(table_items)} table(s) in document:")
-            for i, item in enumerate(table_items, 1):
-                table_body = item.get("table_body", "")
-                row_count = len(table_body.split("\n"))
-                print(f"   {i}. Table with {row_count} rows")
-
-        # Check for images (unlikely in text files but possible in MD)
+        # Check for images
         image_items = [
             item
             for item in content_list
@@ -149,15 +135,28 @@ async def test_text_format_parsing(file_path: str):
             for i, item in enumerate(image_items, 1):
                 print(f"   {i}. Image path: {item.get('img_path', 'N/A')}")
 
-        print("\n🎉 Text format parsing test completed successfully!")
+        # Check for tables
+        table_items = [
+            item
+            for item in content_list
+            if isinstance(item, dict) and item.get("type") == "table"
+        ]
+        if table_items:
+            print(f"\n📊 Found {len(table_items)} table(s):")
+            for i, item in enumerate(table_items, 1):
+                table_body = item.get("table_body", "")
+                row_count = len(table_body.split("\n"))
+                print(f"   {i}. Table with {row_count} rows")
+
+        print("\n🎉 Office document parsing test completed successfully!")
         print("📁 Output files saved to: ./test_output")
         end_time = time.perf_counter()
         timer = end_time - start_time
-        print(f"Total time: {timer}")
+        print(f"Time: {timer}")
         return True
 
     except Exception as e:
-        print(f"\n❌ Text format parsing failed: {str(e)}")
+        print(f"\n❌ Office document parsing failed: {str(e)}")
         import traceback
 
         print(f"   Full error: {traceback.format_exc()}")
@@ -166,35 +165,38 @@ async def test_text_format_parsing(file_path: str):
 
 def main():
     """Main function"""
-    
-    parser = argparse.ArgumentParser(description="Test text format parsing with MinerU")
-    parser.add_argument("--file", help="Path to the text file to test")
+    parser = argparse.ArgumentParser(
+        description="Test Office document parsing with MinerU"
+    )
+    parser.add_argument("--file", help="Path to the Office document to test")
     parser.add_argument(
-        "--check-reportlab",
+        "--check-libreoffice",
         action="store_true",
-        help="Only check ReportLab installation",
+        help="Only check LibreOffice installation",
     )
 
     args = parser.parse_args()
 
-    # Check ReportLab installation
-    print("🔧 Checking ReportLab installation...")
-    if not check_reportlab_installation():
+    # Check LibreOffice installation
+    print("🔧 Checking LibreOffice installation...")
+    if not check_libreoffice_installation():
         return 1
 
-    if args.check_reportlab:
-        print("✅ ReportLab installation check passed!")
+    if args.check_libreoffice:
+        print("✅ LibreOffice installation check passed!")
         return 0
 
     # If not just checking dependencies, file argument is required
     if not args.file:
-        print("❌ Error: --file argument is required when not using --check-reportlab")
+        print(
+            "❌ Error: --file argument is required when not using --check-libreoffice"
+        )
         parser.print_help()
         return 1
 
     # Run the parsing test
     try:
-        success = asyncio.run(test_text_format_parsing(args.file))
+        success = asyncio.run(test_office_document_parsing(args.file))
         return 0 if success else 1
     except KeyboardInterrupt:
         print("\n⏹️ Test interrupted by user")
@@ -203,6 +205,6 @@ def main():
         print(f"\n❌ Unexpected error: {str(e)}")
         return 1
 
-    
+
 if __name__ == "__main__":
     sys.exit(main())
