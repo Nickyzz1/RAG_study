@@ -70,11 +70,13 @@ async def test_office_document_parsing(file_path: str):
 
     config = RAGAnythingConfig(
         context_window=1,
-        context_mode="chunk",
-        max_context_tokens=2000
+        context_mode="page",
+        max_context_tokens=2000,
+        include_headers=True,
+        include_captions=True,
     )
-    # rag = RAGAnything(config=config)
-    rag = RAGAnything()
+    rag = RAGAnything(config=config)
+    # rag = RAGAnything()
 
     try:
         # Test document parsing with MinerU
