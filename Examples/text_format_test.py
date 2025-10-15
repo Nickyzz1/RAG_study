@@ -18,6 +18,7 @@ import asyncio
 import sys
 from pathlib import Path
 from raganything import RAGAnything, RAGAnythingConfig
+from raganything.modalprocessors import ContextConfig, ContextExtractor
 
 
 def check_reportlab_installation():
@@ -67,13 +68,16 @@ async def test_text_format_parsing(file_path: str):
         )
 
     # Initialize RAGAnything (only for parsing functionality)
-    config = RAGAnythingConfig(
-        context_window=1,
-        context_mode="chunk",
-        max_context_tokens=2000
-    )
+    # config = RAGAnythingConfig(
+    #     context_window=1,
+    #     context_mode="page",
+    #     max_context_tokens=4000,
+    #     include_headers=True,
+    #     include_captions=True,
+    # )
     # rag = RAGAnything(config=config)
     rag = RAGAnything()
+
 
     try:
         # Test text parsing with MinerU
@@ -81,7 +85,7 @@ async def test_text_format_parsing(file_path: str):
         content_list, md_content = await rag.parse_document(
             file_path=str(file_path),
             output_dir="./test_output",
-            parse_method="auto",
+            parse_method="ocr",
             display_stats=True,
         )
 
@@ -198,7 +202,7 @@ def main():
         return 0 if success else 1
     except KeyboardInterrupt:
         print("\n⏹️ Test interrupted by user")
-        return 1
+        sys.exit(1)
     except Exception as e:
         print(f"\n❌ Unexpected error: {str(e)}")
         return 1
