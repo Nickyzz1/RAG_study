@@ -7,10 +7,13 @@ from raganything import RAGAnything, RAGAnythingConfig
 import os
 
 
-async def parsing_document(path: str):
+def parsing_document(path: str):
 
     print(f"Parsing files from {path}")
-    # for file in os.listdir(path):
+    print(os.listdir(path))
+    for list in os.listdir(path):
+        file = Path(list)
+        print(list)
     #     if not file.exists():
     #         print("File doesn't exists")
     #         return False

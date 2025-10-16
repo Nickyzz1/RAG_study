@@ -12,16 +12,7 @@ Requirements:
 Usage:
     python image_format_test.py --file path/to/image.bmp
 """
-import os
-import dotenv
-import requests
 
-dotenv.load_dotenv()
-
-PROXY_URL = f"http://{os.environ['USER']}:{os.environ['PASSWORD']}@10.224.200.26:8080"
-PROXY_CONFIG = {"http": PROXY_URL, "https": PROXY_URL}
-
-# response = requests.get(PROXY_URL, timeout=60, proxies=PROXY_CONFIG)
 
 
 import argparse
@@ -83,6 +74,7 @@ async def test_image_format_parsing(file_path: str):
         ".tif",
         ".gif",
         ".webp",
+        ".pdf"
     }
     if file_path.suffix.lower() not in supported_extensions:
         print(f"❌ Unsupported file format: {file_path.suffix}")

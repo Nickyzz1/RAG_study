@@ -57,7 +57,7 @@ async def test_office_document_parsing(file_path: str):
         print(f"❌ File does not exist: {file_path}")
         return False
 
-    supported_extensions = {".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx",".csv"}
+    supported_extensions = {".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx"}
     if file_path.suffix.lower() not in supported_extensions:
         print(f"❌ Unsupported file format: {file_path.suffix}")
         print(f"   Supported formats: {', '.join(supported_extensions)}")
@@ -68,15 +68,15 @@ async def test_office_document_parsing(file_path: str):
 
     # Initialize RAGAnything (only for parsing functionality)
 
-    config = RAGAnythingConfig(
-        context_window=1,
-        context_mode="page",
-        max_context_tokens=2000,
-        include_headers=True,
-        include_captions=True,
-    )
-    rag = RAGAnything(config=config)
-    # rag = RAGAnything()
+    # config = RAGAnythingConfig(
+    #     context_window=5,
+    #     context_mode="pages",
+    #     max_context_tokens=2000,
+    #     include_headers=True,
+    #     include_captions=True,
+    # )
+    # rag = RAGAnything(config=config)
+    rag = RAGAnything()
 
     try:
         # Test document parsing with MinerU
