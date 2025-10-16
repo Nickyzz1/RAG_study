@@ -1,8 +1,6 @@
-from mineru.backend.pipeline.pipeline_analyze import doc_analyze as pipeline_doc_analyze
+from mineru.backend.pipeline.pipeline_analyze import load_images_from_pdf,doc_analyze as pipeline_doc_analyze
 from mineru.cli.common import do_parse, read_fn
 from mineru.utils.enum_class import ImageType
-from mineru.utils.config_reader import get_device 
-from mineru.utils.model_utils import clean_memory, get_res_list_from_layout_res #trash
 import copy
 from mineru.data.data_reader_writer import FileBasedDataWriter
 from mineru.utils.hash_utils import bytes_md5
@@ -15,20 +13,37 @@ from mineru.utils.block_pre_proc import prepare_block_bboxes, process_groups
 from mineru.utils.span_block_fix import fill_spans_in_blocks, fix_discarded_block, fix_block_spans
 from PIL import Image
 from tqdm import tqdm
+from raganything.parser import MineruParser
+import time
 
 def socorro(model_list, images_list, pdf_doc, image_writer, lang=None, ocr_enable=False, formula_enabled=True):
 
     for page_index, page_model_info in tqdm(enumerate(model_list), total=len(model_list), desc="Processing pages"):
-        page = pdf_doc[idx]
-        image_dict = images_list[idx]
+        # print("==================================Page index=============================================")
+        # print(page_index)
+        # print("==================================Page model info=============================================")
+        # print(page_model_info)
+        page = pdf_doc[page_index]
+        # print("==================================Page=============================================")
+        # print(page)
+        image_dict = images_list[page_index]
+        # print("==================================Image_dict=============================================")
+        # print(image_dict)
         scale = image_dict["scale"]
-        print("SCALE:",scale)
+        # print("==================================Scale=============================================")
+        # print(scale)
         # print("Model_list:",model_list)
         page_pil_img = image_dict["img_pil"]
+        # print("==================================page_pil_img=============================================")
+        # print(page_pil_img)
         # page_img_md5 = str_md5(image_dict["img_base64"])
         page_img_md5 = bytes_md5(page_pil_img.tobytes())
+        # print("==================================page_img_md5=============================================")
+        # print(page_pil_img)
         page_w, page_h = map(int, page.get_size())
         magic_model = MagicModel(page_model_info, scale)
+        # print("==================================magic_model=============================================")
+        # print(magic_model)
 
         discarded_blocks = magic_model.get_discarded()
         text_blocks = magic_model.get_text_blocks()
@@ -36,7 +51,11 @@ def socorro(model_list, images_list, pdf_doc, image_writer, lang=None, ocr_enabl
         inline_equations, interline_equations, interline_equation_blocks = magic_model.get_equations()
 
         img_groups = magic_model.get_imgs()
+        # print("==================================img_groups=============================================")
+        # print(img_groups)
         table_groups = magic_model.get_tables()
+        # print("==================================table_groups=============================================")
+        # print(table_groups)
 
         img_body_blocks, img_caption_blocks, img_footnote_blocks, maybe_text_image_blocks = process_groups(
             img_groups, 'image_body', 'image_caption_list', 'image_footnote_list'
@@ -117,12 +136,17 @@ def socorro(model_list, images_list, pdf_doc, image_writer, lang=None, ocr_enabl
 
         """对image/table/interline_equation截图"""
         for span in spans:
+            print("SPAN TYPE:",span['type'])
             if span['type'] in [ContentType.IMAGE, ContentType.TABLE, ContentType.INTERLINE_EQUATION]:
                 span = cut_image_and_table(
-                    span, page_pil_img, page_img_md5, idx, image_writer, scale=scale
+                    span, page_pil_img, page_img_md5, page_index, image_writer, scale=scale
                 )
 
-pdf_bytes = read_fn("Data/PDF/HACKATHON tema1_origin.pdf")
+
+start_time = time.perf_counter()
+path = "Data/PDF/3-page-images.pdf"
+# MineruParser().parse_document(path)
+pdf_bytes = read_fn(path)
 pdf_bytes_list = []
 pdf_bytes_list.append(pdf_bytes)
 # print(pdf_bytes)
@@ -135,7 +159,15 @@ infer_results, all_image_lists, all_pdf_docs, lang_list, ocr_enabled_list = (
         )
     )
 formula_enabled = True
+print("=======================Infer_results============================")
+print(infer_results)
+print("=======================Enumerate(infer_results)============================")
+print(enumerate(infer_results))
+print("=======================all_image_lists============================")
+print(all_image_lists)
+print("========================IDX=========================")
 for idx, model_list in enumerate(infer_results):
+    print(idx)
     model_json = copy.deepcopy(model_list)
     pdf_file_name = pdf_file_names[idx]
     local_image_dir = "./diretorioFim"
@@ -147,5 +179,7 @@ for idx, model_list in enumerate(infer_results):
 
     socorro(model_list=model_list,images_list=images_list,pdf_doc=pdf_doc,image_writer=image_writer,lang=_lang,
             ocr_enable=False,formula_enabled=True)
+end_time = time.perf_counter()
+print(end_time - start_time)
 
     
